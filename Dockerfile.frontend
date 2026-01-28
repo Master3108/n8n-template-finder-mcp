@@ -1,0 +1,22 @@
+# Fase de construcción
+FROM node:20-slim as build
+
+WORKDIR /app
+
+# Copiar archivos de dependencias de la raíz
+COPY package*.json ./
+RUN npm install
+
+# Copiar todo el código fuente
+COPY . .
+
+# Construir la aplicación
+RUN npm run build
+
+# Fase de producción con Nginx
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
