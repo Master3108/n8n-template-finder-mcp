@@ -1,3 +1,5 @@
+// MCP Server with SSE Transport for n8n
+// Version: 1.0.0
 import express from 'express';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
