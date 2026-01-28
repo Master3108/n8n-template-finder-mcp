@@ -1,5 +1,5 @@
 // MCP Server with SSE Transport for n8n
-// Version: 1.0.1 (Fix schema literals)
+// Version: 1.0.2 (Fix SSE Message Handling)
 import express from 'express';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
@@ -18,6 +18,9 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Almacenar el transporte de forma global para acceder desde el POST
+let sseTransport;
 
 // Middleware para CORS
 app.use((req, res, next) => {
@@ -67,38 +70,34 @@ function searchWorkflows(query, limit = 10) {
 
 // Crear servidor MCP
 const mcpServer = new Server(
-    { name: 'n8n-template-finder', version: '1.0.1' },
+    { name: 'n8n-template-finder', version: '1.0.2' },
     { capabilities: { tools: {}, resources: {} } }
 );
 
-// --- HANDLERS CON SINTAXIS CORRECTA ---
+// --- HANDLERS ---
 
-// 1. Listar Herramientas
-mcpServer.setRequestHandler(ListToolsRequestSchema, async () => {
-    return {
-        tools: [
-            {
-                name: 'search_n8n_templates',
-                description: 'Busca plantillas de n8n por nombre, descripción o tags',
-                inputSchema: {
-                    type: 'object',
-                    properties: {
-                        query: { type: 'string', description: 'Término de búsqueda' },
-                        limit: { type: 'number', description: 'Máximo de resultados', default: 10 },
-                    },
-                    required: ['query'],
+mcpServer.setRequestHandler(ListToolsRequestSchema, async () => ({
+    tools: [
+        {
+            name: 'search_n8n_templates',
+            description: 'Busca plantillas de n8n por nombre, descripción o tags',
+            inputSchema: {
+                type: 'object',
+                properties: {
+                    query: { type: 'string', description: 'Término de búsqueda' },
+                    limit: { type: 'number', description: 'Máximo de resultados', default: 10 },
                 },
+                required: ['query'],
             },
-            {
-                name: 'get_agency_info',
-                description: 'Obtiene información sobre la misión de la agencia',
-                inputSchema: { type: 'object', properties: {} },
-            },
-        ],
-    };
-});
+        },
+        {
+            name: 'get_agency_info',
+            description: 'Obtiene información sobre la misión de la agencia',
+            inputSchema: { type: 'object', properties: {} },
+        },
+    ],
+}));
 
-// 2. Llamar Herramientas
 mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
 
@@ -114,25 +113,13 @@ mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
     throw new Error(`Tool unknown: ${name}`);
 });
 
-// 3. Listar Recursos
-mcpServer.setRequestHandler(ListResourcesRequestSchema, async () => {
-    return {
-        resources: [
-            {
-                uri: 'workflow://templates/all',
-                name: 'All N8N Templates',
-                mimeType: 'application/json',
-            },
-            {
-                uri: 'agency://mission',
-                name: 'Agency Mission',
-                mimeType: 'application/json',
-            },
-        ],
-    };
-});
+mcpServer.setRequestHandler(ListResourcesRequestSchema, async () => ({
+    resources: [
+        { uri: 'workflow://templates/all', name: 'All N8N Templates', mimeType: 'application/json' },
+        { uri: 'agency://mission', name: 'Agency Mission', mimeType: 'application/json' },
+    ],
+}));
 
-// 4. Leer Recursos
 mcpServer.setRequestHandler(ReadResourceRequestSchema, async (request) => {
     const { uri } = request.params;
     if (uri === 'workflow://templates/all') {
@@ -144,16 +131,34 @@ mcpServer.setRequestHandler(ReadResourceRequestSchema, async (request) => {
     throw new Error(`Resource unknown: ${uri}`);
 });
 
-// Endpoint SSE para n8n
+// --- ENDPOINTS PARA n8n ---
+
 app.get('/sse', async (req, res) => {
-    console.log('📡 Nueva conexión SSE');
-    const transport = new SSEServerTransport('/message', res);
-    await mcpServer.connect(transport);
+    console.log('📡 Nueva conexión SSE desde n8n');
+
+    // IMPORTANTE: Cabeceras para evitar buffering y mantener conexión viva
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // Desactivar proxy buffering
+
+    sseTransport = new SSEServerTransport('/message', res);
+    await mcpServer.connect(sseTransport);
+
+    // Limpiar transporte al cerrar
+    req.on('close', () => {
+        console.log('🔌 Conexión SSE cerrada');
+        sseTransport = null;
+    });
 });
 
 app.post('/message', async (req, res) => {
-    // El transporte SSE maneja esto internamente con el SDK
-    res.json({ ok: true });
+    if (sseTransport) {
+        console.log('📥 Recibido mensaje desde n8n');
+        await sseTransport.handlePostMessage(req, res);
+    } else {
+        res.status(400).send('No active SSE connection');
+    }
 });
 
 app.get('/health', (req, res) => {
@@ -162,8 +167,8 @@ app.get('/health', (req, res) => {
 
 async function start() {
     await loadData();
-    app.listen(PORT, () => {
-        console.log(`🚀 MCP Server corriendo en puerto ${PORT}`);
+    app.listen(PORT, '0.0.0.0', () => {
+        console.log(`🚀 MCP Server (SSE) listo en puerto ${PORT}`);
     });
 }
 
