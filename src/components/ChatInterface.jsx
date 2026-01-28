@@ -4,7 +4,7 @@ import { Send, Paperclip, Image, FileText, Music, X, Sparkles, Zap, Brain, Rocke
 import workflowsIndex from '../data/workflows-index.json';
 import agencyProducts from '../data/agency-products.json';
 
-const N8N_WEBHOOK_URL = 'https://n8n-n8n.cwf1hb.easypanel.host/webhook-test/flowmatch-processor';
+const N8N_WEBHOOK_URL = 'https://n8n-n8n.cwf1hb.easypanel.host/webhook/flowmatch-processor';
 
 
 // Componente de partículas flotantes (efecto premium)
