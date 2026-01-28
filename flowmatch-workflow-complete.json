@@ -1,0 +1,227 @@
+{
+    "name": "FlowMatch - AI File Processor",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "flowmatch-processor",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "webhook-node",
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2,
+            "position": [
+                240,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "string": [
+                        {
+                            "value1": "={{ $json.file }}",
+                            "operation": "isNotEmpty"
+                        }
+                    ]
+                }
+            },
+            "id": "if-has-file",
+            "name": "Has File?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                480,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "resource": "image",
+                "operation": "analyze",
+                "text": "Analiza esta imagen y describe qué tipo de workflow de N8N necesita el usuario. Menciona integraciones y nodos específicos.",
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.openAi",
+            "typeVersion": 2.1,
+            "position": [
+                740,
+                180
+            ],
+            "id": "analyze-image-node",
+            "name": "Analyze Image",
+            "credentials": {
+                "openAiApi": {
+                    "id": "FoVz0s17UMLChKIo",
+                    "name": "OpenAi account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "prompt": "={{ $json.message }}",
+                "options": {}
+            },
+            "type": "@n8n/n8n-nodes-langchain.openAi",
+            "typeVersion": 2.1,
+            "position": [
+                740,
+                420
+            ],
+            "id": "message-model-node",
+            "name": "Message a Model",
+            "credentials": {
+                "openAiApi": {
+                    "id": "FoVz0s17UMLChKIo",
+                    "name": "OpenAi account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const items = $input.all();
+let analysis = '';
+let userMessage = '';
+
+for (const item of items) {
+  analysis = item.json.response || item.json.text || item.json.message?.content || '';
+  userMessage = item.json.message || '';
+                }
+                // Catálogo de la Agencia (Solo lo más relevante)
+const agencyProducts = [
+                    {id: 'real-estate', name: 'Leads Inmobiliarios WhatsApp', solution: 'Bot que califica leads y agenda en Calendly.', keywords: ['inmuebles', 'casa', 'vivienda', 'real estate'
+                        ]
+                    },
+                    {id: 'dental', name: 'Gestor de Citas Médicas', solution: 'WhatsApp para confirmar citas y reducir ausencias.', keywords: ['doctor', 'dentista', 'clínica', 'citas'
+                        ]
+                    },
+                    {id: 'marketing', name: 'Multiplicador de Contenido IA', solution: 'De YouTube a 10 posts de redes sociales automáticamente.', keywords: ['marketing', 'redes', 'contenido', 'youtube'
+                        ]
+                    }
+                ];
+
+const query = (analysis + ' ' + userMessage).toLowerCase();
+
+// Si es un saludo, no devolver productos, solo el texto amable
+if (query.match(/^(hola|buenos dias|hey|hi|hello)/i) && query.length < 10) {
+  return [
+                        {json: {
+    analysis: analysis || "¡Hola! Soy FlowMatch. Cuéntame, ¿qué proceso te gustaría automatizar hoy? Puedo ayudarte con CRM, Marketing, Atención al Cliente y más.",
+    workflows: [],
+    success: true
+                            }
+                        }
+                    ];
+                }
+                // Buscar en la Agencia
+const foundAgency = agencyProducts.filter(p => 
+  p.keywords.some(k => query.includes(k)) || query.includes(p.name.toLowerCase())
+).map(p => ({ ...p, isAgencyProduct: true
+                }));
+
+return [
+                    {json: {
+  analysis: analysis || "He encontrado estas opciones que encajan con tu necesidad:", 
+  workflows: foundAgency,
+  success: true,
+  foundInAgency: foundAgency.length > 0
+                        }
+                    }
+                ];"
+            },
+            "id": "search-workflows-node",
+            "name": "Search Workflows",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1020,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ $json }}",
+                "options": {}
+            },
+            "id": "respond-node",
+            "name": "Respond to Webhook",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [
+                1280,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Has File?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Has File?": {
+            "main": [
+                [
+                    {
+                        "node": "Analyze Image",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Message a Model",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Analyze Image": {
+            "main": [
+                [
+                    {
+                        "node": "Search Workflows",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Message a Model": {
+            "main": [
+                [
+                    {
+                        "node": "Search Workflows",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Search Workflows": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "active": false,
+    "settings": {
+        "executionOrder": "v1"
+    }
+}

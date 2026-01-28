@@ -1,0 +1,347 @@
+{
+    "name": "FlowMatch - AI File Processor",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "6949076f-6c4c-45f8-a010-2997508d99ba",
+                "responseMode": "responseNode",
+                "options": {}
+            },
+            "id": "webhook-trigger",
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2,
+            "position": [
+                240,
+                300
+            ],
+            "webhookId": "6949076f-6c4c-45f8-a010-2997508d99ba"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict"
+                    },
+                    "conditions": [
+                        {
+                            "id": "file-exists",
+                            "leftValue": "={{ $json.file0 }}",
+                            "rightValue": "",
+                            "operator": {
+                                "type": "exists",
+                                "operation": "exists"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "id": "has-file",
+            "name": "Has File?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                460,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "file-type",
+                            "name": "fileType",
+                            "value": "={{ $json.file0.mimeType }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "file-name",
+                            "name": "fileName",
+                            "value": "={{ $json.file0.fileName }}",
+                            "type": "string"
+                        },
+                        {
+                            "id": "message",
+                            "name": "message",
+                            "value": "={{ $json.message }}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "extract-data",
+            "name": "Extract Data",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [
+                680,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true
+                    },
+                    "conditions": [
+                        {
+                            "id": "is-image",
+                            "leftValue": "={{ $json.fileType }}",
+                            "rightValue": "image/",
+                            "operator": {
+                                "type": "string",
+                                "operation": "startsWith"
+                            }
+                        }
+                    ]
+                }
+            },
+            "id": "is-image",
+            "name": "Is Image?",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2,
+            "position": [
+                900,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "resource": "image",
+                "operation": "analyze",
+                "model": "gpt-4-vision-preview",
+                "prompt": "Analiza esta imagen y describe qué tipo de automatización o workflow de N8N podría necesitar el usuario. Menciona integraciones específicas y nodos relevantes.",
+                "options": {}
+            },
+            "id": "openai-vision",
+            "name": "OpenAI Vision",
+            "type": "n8n-nodes-base.openAi",
+            "typeVersion": 1.3,
+            "position": [
+                1120,
+                100
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "YOUR_OPENAI_CREDENTIAL_ID",
+                    "name": "OpenAI API"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "resource": "text",
+                "operation": "message",
+                "model": "gpt-4o-mini",
+                "messages": {
+                    "values": [
+                        {
+                            "role": "system",
+                            "content": "Eres FlowMatch, un asistente experto en workflows de N8N. Analiza archivos y recomienda workflows específicos."
+                        },
+                        {
+                            "role": "user",
+                            "content": "={{ $json.message }}\n\n{{ $json.analysis }}"
+                        }
+                    ]
+                }
+            },
+            "id": "openai-gpt4",
+            "name": "OpenAI GPT-4",
+            "type": "n8n-nodes-base.openAi",
+            "typeVersion": 1.3,
+            "position": [
+                1120,
+                300
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "YOUR_OPENAI_CREDENTIAL_ID",
+                    "name": "OpenAI API"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "// Buscar workflows relevantes\nconst analysis = $input.first().json.choices[0].message.content;\nconst message = $input.first().json.message;\n\n// Keywords de la búsqueda\nconst keywords = (analysis + ' ' + message).toLowerCase();\n\n// Simular búsqueda (en producción, cargar desde archivo)\nconst workflows = [\n  {\n    name: \"Google Drive to Notion\",\n    description: \"Automatiza la sincronización de archivos de Google Drive a bases de datos de Notion\",\n    nodeCount: 12,\n    category: \"automation\",\n    relevance: keywords.includes('google') || keywords.includes('notion') ? 95 : 50\n  },\n  {\n    name: \"PDF to Text Extractor\",\n    description: \"Extrae texto de PDFs y lo procesa con AI\",\n    nodeCount: 8,\n    category: \"automation\",\n    relevance: keywords.includes('pdf') ? 90 : 40\n  },\n  {\n    name: \"Image Analysis Workflow\",\n    description: \"Analiza imágenes con OpenAI Vision y guarda resultados\",\n    nodeCount: 10,\n    category: \"automation\",\n    relevance: keywords.includes('image') || keywords.includes('foto') ? 92 : 35\n  }\n];\n\n// Ordenar por relevancia\nconst topWorkflows = workflows\n  .sort((a, b) => b.relevance - a.relevance)\n  .slice(0, 3);\n\nreturn [\n  {\n    json: {\n      analysis: analysis,\n      workflows: topWorkflows,\n      message: message\n    }\n  }\n];"
+            },
+            "id": "search-workflows",
+            "name": "Search Workflows",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1340,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ $json }}",
+                "options": {}
+            },
+            "id": "respond",
+            "name": "Respond to Webhook",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1.1,
+            "position": [
+                1560,
+                200
+            ]
+        },
+        {
+            "parameters": {
+                "resource": "text",
+                "operation": "message",
+                "model": "gpt-4o-mini",
+                "messages": {
+                    "values": [
+                        {
+                            "role": "system",
+                            "content": "Eres FlowMatch, un asistente que ayuda a encontrar workflows de N8N."
+                        },
+                        {
+                            "role": "user",
+                            "content": "={{ $json.message }}"
+                        }
+                    ]
+                }
+            },
+            "id": "text-only-ai",
+            "name": "Text Only AI",
+            "type": "n8n-nodes-base.openAi",
+            "typeVersion": 1.3,
+            "position": [
+                680,
+                400
+            ],
+            "credentials": {
+                "openAiApi": {
+                    "id": "YOUR_OPENAI_CREDENTIAL_ID",
+                    "name": "OpenAI API"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Has File?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Has File?": {
+            "main": [
+                [
+                    {
+                        "node": "Extract Data",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Text Only AI",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Extract Data": {
+            "main": [
+                [
+                    {
+                        "node": "Is Image?",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Is Image?": {
+            "main": [
+                [
+                    {
+                        "node": "OpenAI Vision",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "OpenAI GPT-4",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI Vision": {
+            "main": [
+                [
+                    {
+                        "node": "Search Workflows",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "OpenAI GPT-4": {
+            "main": [
+                [
+                    {
+                        "node": "Search Workflows",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Search Workflows": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Text Only AI": {
+            "main": [
+                [
+                    {
+                        "node": "Search Workflows",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [],
+    "triggerCount": 0,
+    "updatedAt": "2026-01-12T15:30:00.000Z",
+    "versionId": "1.0.0"
+}

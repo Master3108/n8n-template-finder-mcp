@@ -1,0 +1,78 @@
+{
+    "agency_name": "Agencia de Soluciones de Agentes IA",
+    "vision": "Convertirnos en la infraestructura operativa invisible de las PYMES, democratizando el acceso a una fuerza laboral digital inteligente.",
+    "mission": "Implementar ecosistemas de agentes autónomos y flujos de trabajo en n8n que eliminen la fricción administrativa.",
+    "philosophy": "Los templates son referencias para la eficiencia; el objetivo final es la creación de flujos personalizados y únicos para cada cliente.",
+    "strategic_products": [
+        {
+            "id": "1",
+            "nicho": "Inmobiliarias",
+            "slug": "cualificador-leads-24-7",
+            "name": "Cualificador de Leads 24/7",
+            "template_reference": "templates/n8n-workflow-templates-main/workflows/0632_Webhook_Manual_Create_Webhook.json"
+        },
+        {
+            "id": "2",
+            "nicho": "Salud/Estética",
+            "slug": "gestor-citas-proactivo",
+            "name": "Gestor de Citas Proactivo",
+            "template_reference": "templates/n8n-workflows-esp-main/workflows/2825-gestion_citas_vapi.json"
+        },
+        {
+            "id": "3",
+            "nicho": "Restaurantes",
+            "slug": "camarero-digital-ia",
+            "name": "Camarero Digital IA",
+            "template_reference": "templates/n8n-workflows-esp-main/workflows/1508-whatsapp-bulk.json"
+        },
+        {
+            "id": "4",
+            "nicho": "Agencias de Marketing",
+            "slug": "analista-reportes-content",
+            "name": "Analista de Reportes & Content Multiplier",
+            "template_reference": "templates/n8n-workflows-main/workflows/Article_to_Social_Media.json"
+        },
+        {
+            "id": "5",
+            "nicho": "E-commerce",
+            "slug": "soporte-logistico-ia",
+            "name": "Agente de Soporte Logístico",
+            "template_reference": "templates/n8n-workflows-main/workflows/Stripe_to_Slack_Drive.json"
+        },
+        {
+            "id": "6",
+            "nicho": "Legal",
+            "slug": "paralegal-ia",
+            "name": "Paralegal IA",
+            "template_reference": "templates/n8n-workflows-main/workflows/Document_OCR_Parser.json"
+        },
+        {
+            "id": "7",
+            "nicho": "Hospitality/Airbnb",
+            "slug": "concierge-ia",
+            "name": "Concierge IA",
+            "template_reference": "templates/n8n-workflows-main/workflows/Google_Review_Alert.json"
+        },
+        {
+            "id": "8",
+            "nicho": "Recursos Humanos",
+            "slug": "screener-talentos",
+            "name": "Screener de Talentos",
+            "template_reference": "templates/n8n-workflows-main/workflows/HR_CV_Parser.json"
+        },
+        {
+            "id": "9",
+            "nicho": "Contabilidad",
+            "slug": "recolector-fiscal",
+            "name": "Recolector Fiscal",
+            "template_reference": "templates/n8n-workflows-main/workflows/OCR_Receipts_to_Sheets.json"
+        },
+        {
+            "id": "10",
+            "nicho": "Fitness",
+            "slug": "coach-retencion",
+            "name": "Coach de Retención",
+            "template_reference": "templates/n8n-workflows-main/workflows/Customer_Retention_Bot.json"
+        }
+    ]
+}

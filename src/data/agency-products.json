@@ -1,0 +1,215 @@
+[
+    {
+        "id": "real-estate-qualifier",
+        "name": "Cualificador de Leads Inmobiliario 24/7",
+        "niche": "Inmobiliaria",
+        "painPoint": "Pérdida de tiempo calificando leads sin presupuesto o urgencia.",
+        "solution": "Bot de WhatsApp que califica leads y agenda solo si son viables.",
+        "n8nNodes": [
+            "WhatsApp Trigger",
+            "AI Agent",
+            "Calendly"
+        ],
+        "category": "Front-End",
+        "keywords": [
+            "real estate",
+            "leads",
+            "calificación",
+            "inmobiliaria",
+            "whatsapp",
+            "calendly"
+        ]
+    },
+    {
+        "id": "dental-appointment-manager",
+        "name": "Gestor de Citas Proactivo",
+        "niche": "Clínicas/Salud",
+        "painPoint": "Alto índice de 'No-Shows' y huecos en agenda.",
+        "solution": "Bot que confirma citas 24h antes y reactiva pacientes antiguos.",
+        "n8nNodes": [
+            "Google Calendar",
+            "WhatsApp Send",
+            "Wait Node"
+        ],
+        "category": "Front-End",
+        "keywords": [
+            "clínica",
+            "salud",
+            "citas",
+            "appointment",
+            "recordatorio",
+            "whatsapp"
+        ]
+    },
+    {
+        "id": "restaurant-waiter",
+        "name": "Camarero Digital IA",
+        "niche": "Restaurantes",
+        "painPoint": "Caos en pedidos por WhatsApp y ventas perdidas por lentitud.",
+        "solution": "Toma pedidos en lenguaje natural y envía a cocina automáticamente.",
+        "n8nNodes": [
+            "Webhook",
+            "OpenAI",
+            "Google Sheets",
+            "Print Node"
+        ],
+        "category": "Front-End",
+        "keywords": [
+            "restaurante",
+            "pedidos",
+            "food",
+            "delivery",
+            "whatsapp",
+            "comanda"
+        ]
+    },
+    {
+        "id": "marketing-report-multiplier",
+        "name": "Analista de Reportes & Content Multiplier",
+        "niche": "Agencias de Marketing",
+        "painPoint": "Reportes manuales lentos y repurposing de contenido pesado.",
+        "solution": "Genera reportes automáticos de ROI y multiplica contenido de video a texto.",
+        "n8nNodes": [
+            "YouTube",
+            "OpenAI",
+            "Notion",
+            "Twitter",
+            "LinkedIn"
+        ],
+        "category": "Front-End",
+        "keywords": [
+            "marketing",
+            "reports",
+            "content",
+            "repurposing",
+            "youtube",
+            "social media"
+        ]
+    },
+    {
+        "id": "ecommerce-logistics-agent",
+        "name": "Agente de Soporte Logístico",
+        "niche": "E-commerce",
+        "painPoint": "Dudas repetitivas sobre estado de pedidos.",
+        "solution": "Conecta con API de transporte y responde automáticamente.",
+        "n8nNodes": [
+            "Shopify",
+            "AfterShip/API",
+            "WhatsApp",
+            "Zendesk"
+        ],
+        "category": "Front-End",
+        "keywords": [
+            "ecommerce",
+            "shipping",
+            "logística",
+            "pedidos",
+            "shopify",
+            "tracking"
+        ]
+    },
+    {
+        "id": "legal-paralegal-ia",
+        "name": "Paralegal IA",
+        "niche": "Despachos Legales",
+        "painPoint": "Revisión manual de documentos y admisión lenta de clientes.",
+        "solution": "Lee PDFs, extrae fechas clave y crea borradores legales.",
+        "n8nNodes": [
+            "Form Trigger",
+            "OpenAI Vision",
+            "Google Docs"
+        ],
+        "category": "Back-End",
+        "keywords": [
+            "legal",
+            "abogado",
+            "documentos",
+            "pdf",
+            "ocr",
+            "contrato"
+        ]
+    },
+    {
+        "id": "property-concierge-ia",
+        "name": "Concierge IA (Airbnb)",
+        "niche": "Administradores de Propiedades",
+        "painPoint": "Preguntas repetitivas de huéspedes a deshoras.",
+        "solution": "Responde dudas del manual de la casa y coordina limpieza.",
+        "n8nNodes": [
+            "Airbnb Webhook",
+            "OpenAI",
+            "Slack",
+            "WhatsApp"
+        ],
+        "category": "Back-End",
+        "keywords": [
+            "airbnb",
+            "propiedades",
+            "renta",
+            "huésped",
+            "soporte"
+        ]
+    },
+    {
+        "id": "hr-talent-screener",
+        "name": "Screener de Talentos",
+        "niche": "Recursos Humanos",
+        "painPoint": "Filtrado manual de cientos de CVs.",
+        "solution": "Lee CVs, extrae skills y clasifica candidatos automáticamente.",
+        "n8nNodes": [
+            "Drive Trigger",
+            "OpenAI (PDF)",
+            "Airtable"
+        ],
+        "category": "Back-End",
+        "keywords": [
+            "hr",
+            "rrhh",
+            "cv",
+            "reclutamiento",
+            "talent",
+            "pdf"
+        ]
+    },
+    {
+        "id": "accounting-tax-collector",
+        "name": "Recolector Fiscal Automático",
+        "niche": "Contadores",
+        "painPoint": "Perseguir facturas y tickets a fin de mes.",
+        "solution": "Recibe fotos de tickets por WhatsApp, extrae datos y sube al ERP.",
+        "n8nNodes": [
+            "WhatsApp",
+            "OpenAI Vision",
+            "Excel",
+            "Quickbooks"
+        ],
+        "category": "Back-End",
+        "keywords": [
+            "contabilidad",
+            "facturas",
+            "tickets",
+            "ocr",
+            "impuestos"
+        ]
+    },
+    {
+        "id": "gym-retention-coach",
+        "name": "Coach de Retención",
+        "niche": "Gimnasios",
+        "painPoint": "Baja tasa de retención y falta de seguimiento.",
+        "solution": "Detecta ausencias y envía mensajes motivacionales automáticamente.",
+        "n8nNodes": [
+            "Database Trigger",
+            "Logic Node",
+            "WhatsApp"
+        ],
+        "category": "Back-End",
+        "keywords": [
+            "gym",
+            "fitness",
+            "retención",
+            "pagos",
+            "seguimiento"
+        ]
+    }
+]
